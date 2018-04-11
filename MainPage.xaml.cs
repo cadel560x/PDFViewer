@@ -28,7 +28,6 @@ namespace PDFViewer
             picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
             picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             picker.FileTypeFilter.Add(".pdf");
-            //picker.FileTypeFilter.Add(".*");
 
             StorageFile file = await picker.PickSingleFileAsync();
 
@@ -38,24 +37,38 @@ namespace PDFViewer
                 PdfDocument doc = await PdfDocument.LoadFromFileAsync(file);
                 Load(doc);
             }
-            else
-            {
-                //
-            }
              
         }
 
         public async void OpenRemote()
         {
-            HttpClient client = new HttpClient();
-            var stream = await
-                client.GetStreamAsync("http://www.adobe.com/content/dam/Adobe/en/accessibility/products/acrobat/pdfs/acrobat-x-accessible-pdf-from-word.pdf");
-            var memStream = new MemoryStream();
-            await stream.CopyToAsync(memStream);
-            memStream.Position = 0;
-            PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
+            string Url = null;
+            TextBox inputTextBox = new TextBox();
+            inputTextBox.AcceptsReturn = false;
+            inputTextBox.Height = 32;
 
-            Load(doc);
+            ContentDialog dialog = new ContentDialog();
+            dialog.Content = inputTextBox;
+            dialog.Title = "Remote PDF file URL";
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonText = "Ok";
+            dialog.SecondaryButtonText = "Cancel";
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                Url = inputTextBox.Text;
+            }
+
+            if ( Url != null && !Url.Equals("") )
+            {
+                HttpClient client = new HttpClient();
+                var stream = await client.GetStreamAsync(Url);
+                var memStream = new MemoryStream();
+                await stream.CopyToAsync(memStream);
+                memStream.Position = 0;
+                PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
+
+                Load(doc);
+            }
         }
 
         async void Load(PdfDocument pdfDoc)
