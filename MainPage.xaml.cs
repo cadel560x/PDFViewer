@@ -31,6 +31,7 @@ namespace PDFViewer
             var picker = new Windows.Storage.Pickers.FileOpenPicker();
             picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
             picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            picker.FileTypeFilter.Add("*");
             picker.FileTypeFilter.Add(".pdf");
 
             StorageFile file = await picker.PickSingleFileAsync();
