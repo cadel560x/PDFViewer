@@ -5,9 +5,25 @@
     xmlns:local="using:PDFViewer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"  x:Name="root">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="Grid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <Button Content="Local PDF" Tapped="{x:Bind OpenLocal}" />
+            <Button Content="Remote PDF" Tapped="{x:Bind OpenRemote}" />
+        </StackPanel>
+        <ScrollViewer ZoomMode="Enabled" Background="DarkGray" Grid.Column="1">
+            <ItemsControl ItemsSource="{Binding PdfPages, ElementName=root}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image Source="{Binding}" Margin="0 2" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </Page>
