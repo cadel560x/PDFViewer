@@ -6,6 +6,7 @@ using Windows.Data.Pdf;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -72,15 +73,35 @@ namespace PDFViewer
                 _tempCursor = Window.Current.CoreWindow.PointerCursor;
                 Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Wait, 1);
 
-                var stream = await client.GetStreamAsync(Url);
-                var memStream = new MemoryStream();
-                await stream.CopyToAsync(memStream);
-                memStream.Position = 0;
-                PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
+                try
+                {
+                    var stream = await client.GetStreamAsync(Url);
+                    var memStream = new MemoryStream();
+                    await stream.CopyToAsync(memStream);
+                    memStream.Position = 0;
+                    PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
+                    Load(doc);
+                }
+                catch (Exception exception)
+                {
+                    Window.Current.CoreWindow.PointerCursor = _tempCursor;
+
+                    MessageDialog showDialog = new MessageDialog(exception.Message);
+                    showDialog.Commands.Add(new UICommand("Ok")
+                    {
+                        Id = 0
+                    });
+                    showDialog.DefaultCommandIndex = 0;
+                    var result = await showDialog.ShowAsync();
+
+                }
+               
+
+                
 
                 Window.Current.CoreWindow.PointerCursor = _tempCursor;
 
-                Load(doc);
+                
             }
         }
 
