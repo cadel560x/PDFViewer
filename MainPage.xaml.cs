@@ -5,6 +5,8 @@ using System.Net.Http;
 using Windows.Data.Pdf;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -17,6 +19,8 @@ namespace PDFViewer
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private CoreCursor _tempCursor;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -53,6 +57,7 @@ namespace PDFViewer
             dialog.IsSecondaryButtonEnabled = true;
             dialog.PrimaryButtonText = "Ok";
             dialog.SecondaryButtonText = "Cancel";
+
             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 Url = inputTextBox.Text;
@@ -61,11 +66,18 @@ namespace PDFViewer
             if ( Url != null && !Url.Equals("") )
             {
                 HttpClient client = new HttpClient();
+
+                
+                _tempCursor = Window.Current.CoreWindow.PointerCursor;
+                Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Wait, 1);
+
                 var stream = await client.GetStreamAsync(Url);
                 var memStream = new MemoryStream();
                 await stream.CopyToAsync(memStream);
                 memStream.Position = 0;
                 PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
+
+                Window.Current.CoreWindow.PointerCursor = _tempCursor;
 
                 Load(doc);
             }
@@ -89,6 +101,7 @@ namespace PDFViewer
 
                 PdfPages.Add(image);
             }
+
         }
 
         public ObservableCollection<BitmapImage> PdfPages
