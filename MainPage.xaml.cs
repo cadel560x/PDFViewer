@@ -24,11 +24,25 @@ namespace PDFViewer
 
         public async void OpenLocal()
         {
-            StorageFile f = await
-                StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/pdffile.pdf"));
-            PdfDocument doc = await PdfDocument.LoadFromFileAsync(f);
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            picker.FileTypeFilter.Add(".pdf");
+            //picker.FileTypeFilter.Add(".*");
 
-            Load(doc);
+            StorageFile file = await picker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                // Application now has read/write access to the picked file
+                PdfDocument doc = await PdfDocument.LoadFromFileAsync(file);
+                Load(doc);
+            }
+            else
+            {
+                //
+            }
+             
         }
 
         public async void OpenRemote()
