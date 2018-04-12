@@ -42,12 +42,22 @@ namespace PDFViewer
 
             if (file != null)
             {
-                // Application now has read/write access to the picked file
-                PdfDocument doc = await PdfDocument.LoadFromFileAsync(file);
+                try
+                {
+                    // Application now has read/write access to the picked file
+                    PdfDocument doc = await PdfDocument.LoadFromFileAsync(file);
 
-                // Loads PDF file into GUI
-                Load(doc);
-            }
+                    // Loads PDF file into GUI
+                    Load(doc);
+                }
+                catch (Exception exception)
+                {
+                    // Display the exception in a 'MessageDialog'
+                    MessageDialog showDialog = new MessageDialog(exception.Message);
+                    showDialog.Commands.Add(new UICommand("Ok"));
+                    await showDialog.ShowAsync();
+                }
+        }
 
         } // end OpenLocal()
 
@@ -135,7 +145,7 @@ namespace PDFViewer
                 }
 
                 PdfPages.Add(image);
-            }
+            }  
 
         } // end Load(PdfDocument pdfDoc)
 
