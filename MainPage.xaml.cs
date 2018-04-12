@@ -10,6 +10,9 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
+using iTextSharp;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -21,6 +24,8 @@ namespace PDFViewer
     public sealed partial class MainPage : Page
     {
         private CoreCursor _tempCursor;
+        private StorageFile _imageFile;
+
 
 
 
@@ -32,12 +37,14 @@ namespace PDFViewer
 
         public async void OpenLocal()
         {
+            // Open a PDF file using a file picker
             var picker = new Windows.Storage.Pickers.FileOpenPicker();
             picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
             picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             picker.FileTypeFilter.Add("*");
             picker.FileTypeFilter.Add(".pdf");
 
+            // Set a handler for the selected file
             StorageFile file = await picker.PickSingleFileAsync();
 
             if (file != null)
@@ -45,7 +52,7 @@ namespace PDFViewer
                 try
                 {
                     // Application now has read/write access to the picked file
-                    PdfDocument doc = await PdfDocument.LoadFromFileAsync(file);
+                    Windows.Data.Pdf.PdfDocument doc = await Windows.Data.Pdf.PdfDocument.LoadFromFileAsync(file);
 
                     // Loads PDF file into GUI
                     Load(doc);
@@ -57,7 +64,9 @@ namespace PDFViewer
                     showDialog.Commands.Add(new UICommand("Ok"));
                     await showDialog.ShowAsync();
                 }
-        }
+            }
+
+
 
         } // end OpenLocal()
 
@@ -107,7 +116,7 @@ namespace PDFViewer
                     memStream.Position = 0;
 
                     // Creates PDF document from the downloaded stream and loads into GUI
-                    PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
+                    Windows.Data.Pdf.PdfDocument doc = await Windows.Data.Pdf.PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
                     Load(doc);
                 }
                 catch (Exception exception)
@@ -128,7 +137,7 @@ namespace PDFViewer
         } // end OpenRemote()
 
 
-        async void Load(PdfDocument pdfDoc)
+        async void Load(Windows.Data.Pdf.PdfDocument pdfDoc)
         {
             PdfPages.Clear();
 
@@ -148,6 +157,62 @@ namespace PDFViewer
             }  
 
         } // end Load(PdfDocument pdfDoc)
+
+
+        public async void PickImage()
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            picker.FileTypeFilter.Add("*");
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".bmp");
+            picker.FileTypeFilter.Add(".gif");
+
+            // Set a handler for the selected file
+            _imageFile = await picker.PickSingleFileAsync();
+
+            //Display the file path and name in the textbox for it
+            tbImageFile.Text = _imageFile.Path;
+
+        } // end BrowseImage
+
+
+        public async void ImageToPdf()
+        {
+            if (_imageFile != null)
+            {
+                try
+                {
+                    var outputPDF = Path.ChangeExtension(_imageFile.Name, ".pdf");
+
+                    Document document = new Document();
+                    using (var stream = new FileStream(outputPDF, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        PdfWriter.GetInstance(document, stream);
+                        document.Open();
+                        using (var imageStream = new FileStream(_imageFile.Name, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        {
+                            var image = iTextSharp.text.Image.GetInstance(imageStream);
+                            document.Add(image);
+                        }
+                        document.Close();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    // Display the exception in a 'MessageDialog'
+                    MessageDialog showDialog = new MessageDialog(exception.Message);
+                    showDialog.Commands.Add(new UICommand("Ok"));
+                    await showDialog.ShowAsync();
+                }
+                
+
+            } // end  if (imageFile != null)
+
+        } // end ImageToPdf
 
 
         public ObservableCollection<BitmapImage> PdfPages

@@ -9,13 +9,20 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="Grid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel>
             <Button Content="Local PDF" Tapped="{x:Bind OpenLocal}" />
             <Button Content="Remote PDF" Tapped="{x:Bind OpenRemote}" />
+            <TextBlock x:Name="labelImageFile" Text="Convert Image to PDF" Margin="0,20,0,0"/>
+            <TextBox x:Name="tbImageFile"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Browse" Tapped="{x:Bind PickImage}" />
+                <Button Content="Convert" Tapped="{x:Bind ImageToPdf}" Margin="2,0,0,0" />
+            </StackPanel>
         </StackPanel>
+        
         <ScrollViewer ZoomMode="Enabled" Background="DarkGray" Grid.Column="1">
             <ItemsControl ItemsSource="{Binding PdfPages, ElementName=root}">
                 <ItemsControl.ItemTemplate>
