@@ -22,10 +22,13 @@ namespace PDFViewer
     {
         private CoreCursor _tempCursor;
 
+
+
         public MainPage()
         {
             this.InitializeComponent();
         }
+
 
         public async void OpenLocal()
         {
@@ -41,14 +44,18 @@ namespace PDFViewer
             {
                 // Application now has read/write access to the picked file
                 PdfDocument doc = await PdfDocument.LoadFromFileAsync(file);
+
+                // Loads PDF file into GUI
                 Load(doc);
             }
-             
-        }
+
+        } // end OpenLocal()
+
 
         public async void OpenRemote()
         {
             string Url = null;
+
             TextBox inputTextBox = new TextBox();
             inputTextBox.AcceptsReturn = false;
             inputTextBox.Height = 32;
@@ -60,6 +67,7 @@ namespace PDFViewer
             dialog.PrimaryButtonText = "Ok";
             dialog.SecondaryButtonText = "Cancel";
 
+            // Gets the PDF file URI
             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 Url = inputTextBox.Text;
@@ -67,43 +75,48 @@ namespace PDFViewer
 
             if ( Url != null && !Url.Equals("") )
             {
-                HttpClient client = new HttpClient();
+                // Verifies 'Url'
+                if ( ! Url.Contains("://") )
+                {
+                    Url = "http://" + Url;
+                }
 
-                
+                // Change the cursor to wait cursor
                 _tempCursor = Window.Current.CoreWindow.PointerCursor;
                 Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Wait, 1);
 
                 try
                 {
+                    // Retrieves the remote PDF file as a stream of bytes
+                    HttpClient client = new HttpClient();
                     var stream = await client.GetStreamAsync(Url);
+
+                    // Puts the stream into memory
                     var memStream = new MemoryStream();
                     await stream.CopyToAsync(memStream);
                     memStream.Position = 0;
+
+                    // Creates PDF document from the downloaded stream and loads into GUI
                     PdfDocument doc = await PdfDocument.LoadFromStreamAsync(memStream.AsRandomAccessStream());
                     Load(doc);
                 }
                 catch (Exception exception)
                 {
-                    Window.Current.CoreWindow.PointerCursor = _tempCursor;
-
+                    // Display the exception in a 'MessageDialog'
                     MessageDialog showDialog = new MessageDialog(exception.Message);
-                    showDialog.Commands.Add(new UICommand("Ok")
-                    {
-                        Id = 0
-                    });
-                    showDialog.DefaultCommandIndex = 0;
-                    var result = await showDialog.ShowAsync();
-
+                    showDialog.Commands.Add(new UICommand("Ok"));
+                    await showDialog.ShowAsync();
                 }
-               
+                finally
+                {
+                    // Restores the cursor to normal
+                    Window.Current.CoreWindow.PointerCursor = _tempCursor;
+                }
 
-                
-
-                Window.Current.CoreWindow.PointerCursor = _tempCursor;
-
-                
             }
-        }
+
+        } // end OpenRemote()
+
 
         async void Load(PdfDocument pdfDoc)
         {
@@ -124,12 +137,15 @@ namespace PDFViewer
                 PdfPages.Add(image);
             }
 
-        }
+        } // end Load(PdfDocument pdfDoc)
+
 
         public ObservableCollection<BitmapImage> PdfPages
         {
             get;
             set;
         } = new ObservableCollection<BitmapImage>();
-    }
-}
+
+    } // end class MainPage
+
+} // end namespace PDFViewer
