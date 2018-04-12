@@ -16,7 +16,7 @@
             <Button Content="Local PDF" Tapped="{x:Bind OpenLocal}" />
             <Button Content="Remote PDF" Tapped="{x:Bind OpenRemote}" />
             <TextBlock x:Name="labelImageFile" Text="Convert Image to PDF" Margin="0,20,0,0"/>
-            <TextBox x:Name="tbImageFile"/>
+            <TextBox x:Name="tbImageFile" Text="{x:Bind ImageFileName, Mode=TwoWay}" />
             <StackPanel Orientation="Horizontal">
                 <Button Content="Browse" Tapped="{x:Bind PickImage}" />
                 <Button Content="Convert" Tapped="{x:Bind ImageToPdf}" Margin="2,0,0,0" />

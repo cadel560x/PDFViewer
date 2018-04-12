@@ -23,9 +23,11 @@ namespace PDFViewer
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        #region fields
         private CoreCursor _tempCursor;
-        private StorageFile _imageFile;
-
+        //private StorageFile _imageFile;
+        //private string _imageFileName;
+        #endregion
 
 
 
@@ -172,10 +174,12 @@ namespace PDFViewer
             picker.FileTypeFilter.Add(".gif");
 
             // Set a handler for the selected file
-            _imageFile = await picker.PickSingleFileAsync();
+            //_imageFile = await picker.PickSingleFileAsync();
+            StorageFile _imageFile = await picker.PickSingleFileAsync();
 
             //Display the file path and name in the textbox for it
-            tbImageFile.Text = _imageFile.Path;
+            //tbImageFile.Text = _imageFile.Path;
+            ImageFileName = _imageFile.Path;
 
         } // end BrowseImage
 
@@ -183,28 +187,37 @@ namespace PDFViewer
         public async void ImageToPdf()
         {
             // Textbox for image file is not empty
-            if (tbImageFile.Text != "" && tbImageFile.Text != null )
-            {
-                _imageFile = await StorageFile.GetFileFromPathAsync(tbImageFile.Text);
-            }
-            else
-            {
-                // Resets the image file handler
-                _imageFile = null;
-            }
+            //if (tbImageFile.Text != "" && tbImageFile.Text != null )
+            //{
+            //    //_imageFile = await StorageFile.GetFileFromPathAsync(tbImageFile.Text);
+            //    _imageFileName = tbImageFile.Text;
+            //}
+            //else
+            //{
+            //    // Resets the image file handler
+            //    //_imageFile = null;
+            //    _imageFileName = null;
+            //}
 
-            if (_imageFile != null)
+            //if (_imageFile != null)
+            if (ImageFileName != null)
             {
                 try
                 {
-                    var outputPDF = Path.ChangeExtension(_imageFile.Name, ".pdf");
+                    //var outputPDF = Path.ChangeExtension(_imageFile.Name, ".pdf");
+                    var outputPDF = Path.ChangeExtension(ImageFileName, ".pdf");
+
+                    MessageDialog showDialog = new MessageDialog(outputPDF);
+                    showDialog.Commands.Add(new UICommand("Ok"));
+                    await showDialog.ShowAsync();
 
                     Document document = new Document();
                     using (var stream = new FileStream(outputPDF, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         PdfWriter.GetInstance(document, stream);
                         document.Open();
-                        using (var imageStream = new FileStream(_imageFile.Name, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        //using (var imageStream = new FileStream(_imageFile.Name, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var imageStream = new FileStream(ImageFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             var image = iTextSharp.text.Image.GetInstance(imageStream);
                             document.Add(image);
@@ -225,12 +238,15 @@ namespace PDFViewer
 
         } // end ImageToPdf
 
-
+        #region properties
         public ObservableCollection<BitmapImage> PdfPages
         {
             get;
             set;
         } = new ObservableCollection<BitmapImage>();
+
+        public string ImageFileName { get; set; }
+        #endregion
 
     } // end class MainPage
 
