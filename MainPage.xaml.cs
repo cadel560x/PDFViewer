@@ -182,6 +182,17 @@ namespace PDFViewer
 
         public async void ImageToPdf()
         {
+            // Textbox for image file is not empty
+            if (tbImageFile.Text != "" && tbImageFile.Text != null )
+            {
+                _imageFile = await StorageFile.GetFileFromPathAsync(tbImageFile.Text);
+            }
+            else
+            {
+                // Resets the image file handler
+                _imageFile = null;
+            }
+
             if (_imageFile != null)
             {
                 try
