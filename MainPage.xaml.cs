@@ -156,28 +156,6 @@ namespace PDFViewer
         } // end Load(PdfDocument pdfDoc)
 
 
-        public async void PickImage()
-        {
-            var picker = new Windows.Storage.Pickers.FileOpenPicker();
-            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
-            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-            picker.FileTypeFilter.Add("*");
-            picker.FileTypeFilter.Add(".jpg");
-            picker.FileTypeFilter.Add(".jpeg");
-            picker.FileTypeFilter.Add(".png");
-            picker.FileTypeFilter.Add(".bmp");
-            picker.FileTypeFilter.Add(".gif");
-
-            // Set a handler for the selected file
-            StorageFile imageFile = await picker.PickSingleFileAsync();
-            
-            //Display the file path and name in the textbox for it
-            _imageFileName = imageFile.Path;
-            tbImageFile.Text = _imageFileName;
-
-        } // end BrowseImage
-
-
         #region properties
         public ObservableCollection<BitmapImage> PdfPages
         {
