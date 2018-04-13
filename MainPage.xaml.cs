@@ -10,9 +10,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
-using iTextSharp;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
+using System.Threading.Tasks;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -25,8 +23,7 @@ namespace PDFViewer
     {
         #region fields
         private CoreCursor _tempCursor;
-        //private StorageFile _imageFile;
-        //private string _imageFileName;
+        private string _imageFileName;
         #endregion
 
 
@@ -67,8 +64,6 @@ namespace PDFViewer
                     await showDialog.ShowAsync();
                 }
             }
-
-
 
         } // end OpenLocal()
 
@@ -174,69 +169,14 @@ namespace PDFViewer
             picker.FileTypeFilter.Add(".gif");
 
             // Set a handler for the selected file
-            //_imageFile = await picker.PickSingleFileAsync();
-            StorageFile _imageFile = await picker.PickSingleFileAsync();
-
+            StorageFile imageFile = await picker.PickSingleFileAsync();
+            
             //Display the file path and name in the textbox for it
-            //tbImageFile.Text = _imageFile.Path;
-            ImageFileName = _imageFile.Path;
+            _imageFileName = imageFile.Path;
+            tbImageFile.Text = _imageFileName;
 
         } // end BrowseImage
 
-
-        public async void ImageToPdf()
-        {
-            // Textbox for image file is not empty
-            //if (tbImageFile.Text != "" && tbImageFile.Text != null )
-            //{
-            //    //_imageFile = await StorageFile.GetFileFromPathAsync(tbImageFile.Text);
-            //    _imageFileName = tbImageFile.Text;
-            //}
-            //else
-            //{
-            //    // Resets the image file handler
-            //    //_imageFile = null;
-            //    _imageFileName = null;
-            //}
-
-            //if (_imageFile != null)
-            if (ImageFileName != null)
-            {
-                try
-                {
-                    //var outputPDF = Path.ChangeExtension(_imageFile.Name, ".pdf");
-                    var outputPDF = Path.ChangeExtension(ImageFileName, ".pdf");
-
-                    MessageDialog showDialog = new MessageDialog(outputPDF);
-                    showDialog.Commands.Add(new UICommand("Ok"));
-                    await showDialog.ShowAsync();
-
-                    Document document = new Document();
-                    using (var stream = new FileStream(outputPDF, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        PdfWriter.GetInstance(document, stream);
-                        document.Open();
-                        //using (var imageStream = new FileStream(_imageFile.Name, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var imageStream = new FileStream(ImageFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        {
-                            var image = iTextSharp.text.Image.GetInstance(imageStream);
-                            document.Add(image);
-                        }
-                        document.Close();
-                    }
-                }
-                catch (Exception exception)
-                {
-                    // Display the exception in a 'MessageDialog'
-                    MessageDialog showDialog = new MessageDialog(exception.Message);
-                    showDialog.Commands.Add(new UICommand("Ok"));
-                    await showDialog.ShowAsync();
-                }
-                
-
-            } // end  if (imageFile != null)
-
-        } // end ImageToPdf
 
         #region properties
         public ObservableCollection<BitmapImage> PdfPages
@@ -244,8 +184,6 @@ namespace PDFViewer
             get;
             set;
         } = new ObservableCollection<BitmapImage>();
-
-        public string ImageFileName { get; set; }
         #endregion
 
     } // end class MainPage
