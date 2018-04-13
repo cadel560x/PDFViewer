@@ -10,7 +10,6 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
-using System.Threading.Tasks;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -23,7 +22,6 @@ namespace PDFViewer
     {
         #region fields
         private CoreCursor _tempCursor;
-        private string _imageFileName;
         #endregion
 
 
